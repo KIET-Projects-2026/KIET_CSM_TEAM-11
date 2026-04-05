@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomaly Detector</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background: #e9ecef;
+        }
+
+        .container {
+            background: #fff;
+            padding: 40px 30px 30px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px #bbb;
+            max-width: 480px;
+            margin: 60px auto;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 18px;
+        }
+
+        label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        input[type="file"] {
+            margin: 16px 0 24px 0;
+        }
+
+        button {
+            padding: 12px 28px;
+            background: linear-gradient(90deg, #007bff 60%, #0056b3 100%);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: linear-gradient(90deg, #0056b3 60%, #007bff 100%);
+        }
+
+        .result,
+        .error {
+            margin-top: 28px;
+            padding: 18px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+        }
+
+        .result {
+            background: #e6f7e6;
+            color: #155724;
+            border: 1px solid #b7e4b7;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #888;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="historyBtn"
+        style="position:fixed;top:40px;right:40px;z-index:1001;background:#007bff;color:#fff;border:none;border-radius:50px;padding:14px 28px;font-size:1.1rem;box-shadow:0 2px 8px #bbb;cursor:pointer;transition:background 0.2s;">History</button>
+
+    <div id="historySidebar"
+        style="display:none;position:fixed;top:0;right:0;width:340px;height:100vh;background:#f8f9fa;border-left:1px solid #e0e0e0;box-shadow:-2px 0 12px #ddd;z-index:1002;padding:32px 22px 18px 22px;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+            <h2 style="color:#007bff;font-size:1.2rem;margin:0;">Detection History</h2>
+            <div>
+                <button onclick="document.getElementById('historySidebar').style.display='none'"
+                    style="background:none;border:none;font-size:1.5rem;color:#888;cursor:pointer;">&times;</button>
+            </div>
+        </div>
+
+        {% if history and history|length > 0 %}
+        <ul style="list-style:none;padding:0;margin:0;">
+            {% for item in history %}
+            <li
+                style="margin-bottom:18px;border-bottom:1px solid #e0e0e0;padding-bottom:12px;display:flex;align-items:flex-start;gap:10px;">
+                <div style="flex:1;">
+                    <div style="font-weight:600;color:#333;">{{ item.filename }}</div>
+                    <div style="font-size:0.98rem;color:#555;">Anomalies: <b>{{ item.anomaly_count }}</b> / {{
+                        item.total_frames }}</div>
+                    <div style="font-size:0.93rem;color:#888;">Threshold: {{ item.threshold }}</div>
+                    <a href="{{ item.output_video_url }}" target="_blank"
+                        style="color:#007bff;text-decoration:underline;font-size:0.97rem;">View Output Video</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div style="color:#888;font-size:0.97rem;">No detections yet.</div>
+        {% endif %}
+    </div>
+
+    <div class="container">
+        <div style="display:flex; align-items:center; justify-content:center; gap:18px; margin-bottom:18px;">
+            <div
+                style="background:#007bff; border-radius:50%; width:54px; height:54px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px #bbb;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" fill="#fff" />
+                    <path d="M7 12a5 5 0 0 1 10 0c0 2.5-2.5 5-5 5s-5-2.5-5-5z" fill="#007bff" />
+                    <circle cx="12" cy="12" r="2" fill="#fff" />
+                </svg>
+            </div>
+            <div>
+                <h1 style="margin:0; color:#007bff; font-size:2.1rem; letter-spacing:1px;">Video Anomaly Detector</h1>
+                <div style="color:#555; font-size:1.08rem; margin-top:2px;">Upload a video to detect and visualize
+                    anomalies</div>
+            </div>
+        </div>
+
+        <form action="/" method="post" enctype="multipart/form-data" style="margin-bottom:18px;">
+            <label for="video" style="font-size:1.08rem;">Select a video file:</label><br>
+            <input type="file" id="video" name="video" accept="video/*" required
+                style="margin: 16px 0 24px 0; font-size:1rem;">
+            <button type="submit">Detect Anomalies</button>
+        </form>
+
+        <div style="border-top: 1px solid #eee; margin: 24px 0; padding-top: 24px;">
+            <h2 style="color:#007bff; font-size:1.5rem; margin-bottom: 12px;">Live Detection</h2>
+            <p style="color:#555; margin-bottom: 16px;">Use your webcam for real-time anomaly detection.</p>
+
+            <div id="webcamContainer" style="display:none; margin-bottom: 18px;">
+                <img id="webcamFeed" src=""
+                    style="width: 100%; max-width: 640px; border-radius: 8px; box-shadow: 0 2px 8px #bbb; background: #000; min-height: 480px;">
+            </div>
+
+            <button id="webcamBtn" type="button"
+                style="background: linear-gradient(90deg, #28a745 60%, #218838 100%);">Start Live Webcam</button>
+            <button id="stopWebcamBtn" type="button"
+                style="display:none; background: linear-gradient(90deg, #dc3545 60%, #c82333 100%); margin-left: 10px;">Stop
+                Webcam</button>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="error">
+            {% for message in messages %}
+            <div>{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% if result %}
+        <div class="result">{{ result }}</div>
+        {% endif %}
+
+        {% if output_video_url %}
+        <div style="margin-top:32px; text-align:center;">
+            <h2>Output Video</h2>
+            <div style="display:inline-block; max-width:100%;">
+                <video id="outputVideo"
+                    style="width: 720px; max-width:100%; aspect-ratio:16/9; border-radius:8px; box-shadow:0 2px 8px #bbb; background:#000;"
+                    controls>
+                    <source src="{{ output_video_url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div style="margin-top:12px;">
+                    <label for="speedRange">Playback Speed:</label>
+                    <select id="speedRange" style="font-size:1rem; padding:2px 8px;">
+                        <option value="0.25">0.25x</option>
+                        <option value="0.5">0.5x</option>
+                        <option value="0.75">0.75x</option>
+                        <option value="1" selected>1x (Normal)</option>
+                        <option value="1.25">1.25x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="2">2x</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top:10px;">
+                <a href="{{ output_video_url }}" target="_blank">Download/Direct Link to Output Video</a>
+            </div>
+        </div>
+        <script>
+            const video = document.getElementById('outputVideo');
+            const speed = document.getElementById('speedRange');
+            if (video && speed) {
+                speed.addEventListener('change', function () {
+                    video.playbackRate = parseFloat(this.value);
+                });
+            }
+        </script>
+        {% endif %}
+    </div>
+
+    <div class="footer">&copy; 2025 Anomaly Detection App</div>
+
+    <script>
+        // History Sidebar Toggle
+        document.getElementById('historyBtn').onclick = function () {
+            document.getElementById('historySidebar').style.display = 'block';
+        };
+
+        // Webcam Toggle Logic
+        const webcamBtn = document.getElementById('webcamBtn');
+        const stopWebcamBtn = document.getElementById('stopWebcamBtn');
+        const webcamContainer = document.getElementById('webcamContainer');
+        const webcamFeed = document.getElementById('webcamFeed');
+
+        if (webcamBtn) {
+            webcamBtn.onclick = function () {
+                webcamFeed.src = "/video_feed";
+                webcamContainer.style.display = 'block';
+                webcamBtn.style.display = 'none';
+                stopWebcamBtn.style.display = 'inline-block';
+            };
+        }
+
+        if (stopWebcamBtn) {
+            stopWebcamBtn.onclick = function () {
+                webcamFeed.src = "";
+                webcamContainer.style.display = 'none';
+                webcamBtn.style.display = 'inline-block';
+                stopWebcamBtn.style.display = 'none';
+            };
+        }
+    </script>
+</body>
+
+</html>
