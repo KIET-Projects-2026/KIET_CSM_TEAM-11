@@ -1,86 +1,74 @@
-# 📋 Project Coordination & Development Roadmap
+# 📋 Detailed Project Blueprint & Team Performance Log
 ## AI Video Anomaly Detection System (KIET CSM TEAM-11)
 
-This document outlines the architecture, module division, and individual responsibilities for the 5-member project team.
+This document provides a granular view of the project's internal mechanics, specific technical tasks completed by each team member, and the technology-to-member mapping.
 
 ---
 
-## 👥 Team Roles & Responsibilities
+## 🛠️ Technical Execution & Tasks
 
-The project is divided into **three core disciplines**: Machine Learning (ML), Backend (Flask), and Frontend (UI), plus cross-functional roles for data and testing.
+### 1. 🧠 ML Lead (Machine Learning Specialist)
+**Tech Stack**: `TensorFlow`, `Keras`, `NumPy`
+- **Completed Tasks**:
+    - **Architecture Design**: Constructed a 4-layer Convolutional Encoder to compress 128x128 RGB images into a 256-dimensional latent space.
+    - **Reconstruction Algorithm**: Implemented the `feature_extractor.py` logic where input frames are passed through the autoencoder to generate an output attempt.
+    - **Anomaly Calculus**: Coded the `anomaly_detector.py` module to compute Mean Squared Error (MSE) between original pixels and reconstructed pixels.
+    - **Statistical Boundary**: Developed the logic for 3-sigma ($\mu \pm 3\sigma$) adaptive thresholding to distinguish anomalies from noise.
 
-### 1. 🧠 ML Lead (Machine Learning & Core Logic)
-**Primary Responsibility:** The "Brain" of the project.
-- **Key Modules**: `feature_extractor.py`, `anomaly_detector.py`.
-- **Primary Tasks**:
-    - Architect and fine-tune the **CNN Autoencoder** (Latent dimension, filter sizes).
-    - Implement the **Reconstruction Error** logic (MSE calculation).
-    - Develop the **Adaptive Thresholding** algorithm ($\mu + 3\sigma$).
-    - Research and integrate different loss functions for better anomaly sensitivity.
+### 2. 🌐 Web Lead (Backend & UI Architect)
+**Tech Stack**: `Flask`, `HTML5`, `CSS3 (Vanilla)`, `JavaScript`
+- **Completed Tasks**:
+    - **Server Backbone**: Architected `app.py` to handle asynchronous video requests and webcam streaming.
+    - **Surveillance UI**: Designed the main dashboard with a "History" sidebar and real-time status indicators (Normal vs. Anomaly).
+    - **Video Streaming**: Implemented the live webcam socketing (MJPEG over HTTP) for lag-free browser visualization.
+    - **Session Persistence**: Enabled browser session storage to keep track of previous anomaly detection results.
 
-### 2. 🌐 Web/UI Lead (Flask Backend & Dashboard Interface)
-**Primary Responsibility:** The "Face" and "Vessel" of the project.
-- **Key Modules**: `app.py`, `templates/index.html`, `static/css`.
-- **Primary Tasks**:
-    - Manage the **Flask routing** and session handling.
-    - Build a responsive, user-friendly **Surveillance Dashboard**.
-    - Develop the **Live Video Feed** streaming using `multipart/x-mixed-replace`.
-    - Implement file upload security and storage management.
+### 3. 📹 Integration Specialist (Computer Vision Engineer)
+**Tech Stack**: `OpenCV (cv2)`, `Python (Thread Management)`
+- **Completed Tasks**:
+    - **Real-time Pipeline**: Developed `webcam_detector.py` to synchronize camera hardware with ML model inference.
+    - **Visual Overlays**: Created the dynamic frame-annotation system (drawing Red/Green borders and error metrics on the screen).
+    - **Video Storage**: Built the saving mechanism in `video_visualizer.py` that encodes processed results into MP4 containers.
+    - **UI Optimization**: Tuned the frame buffer to maintain stable FPS during simultaneous ML processing and streaming.
 
-### 3. 📹 Video Integration & Integration Specialist
-**Primary Responsibility:** The "Eyes" and "Nervous System".
-- **Key Modules**: `webcam_detector.py`, `video_visualizer.py`.
-- **Primary Tasks**:
-    - Optimize **OpenCV frame acquisition** for real-time performance (FPS management).
-    - Design the **UI Overlays** (Red/Green borders, text annotations on frames).
-    - Bridge the data flow between processed ML outputs and the Flask server.
-    - Implement the **Video Export** feature (saving processed results with annotations).
+### 4. 📊 Data Engineer (Preprocessing & QA)
+**Tech Stack**: `NumPy`, `Flask-Uploads`, `FFmpeg`
+- **Completed Tasks**:
+    - **Input Normalization**: Standardized frame preprocessing (resizing to 128x128 and normalizing pixel values to [0,1]).
+    - **Dataset Validation**: Curated local video samples for testing the threshold sensitivity across different lighting environments.
+    - **File Management**: Optimized the `uploads/` to `static/outputs/` directory pipeline to handle secure filename saving.
+    - **Benchmarking**: Generated performance logs for the ML Lead to verify model accuracy against known anomalous activities.
 
-### 4. 📊 Data Engineer & Dataset Specialist
-**Primary Responsibility:** Quality Control & Preprocessing.
-- **Key Focus**: Input Pipelining & Benchmarking.
-- **Primary Tasks**:
-    - Develop **Preprocessing Scripts** (Resize, RGB normalization, Grayscale options).
-    - Curate "Normal" and "Anomalous" test video samples to benchmark accuracy.
-    - Conduct **Latency Analysis**: Identifying bottleneck's in the pipeline.
-    - Manage the `uploads/` and `static/outputs/` directory structure and cleanup.
-
-### 5. 🛡️ Support & Documentation Specialist
-**Primary Responsibility:** Reliability & User Experience.
-- **Key Focus**: Testing, Documentation, & Deployment.
-- **Primary Tasks**:
-    - Lead the **Git Workflow** (Branching, Merge Requests, Commit standards).
-    - Technical Writing: Maintain the `README.md` and this `PROJECT_INFO.md`.
-    - Conduct **Unit Testing** for individual modules and **Integrative Testing** for the whole app.
-    - Manage environment setup (Virtual environments, `requirements.txt`).
+### 5. 🛡️ Support & DevOps (Documentation & Workflow)
+**Tech Stack**: `Git/GitHub`, `Markdown`, `Python venv`
+- **Completed Tasks**:
+    - **Git Management**: Set up the repository structure, resolved merge conflicts, and managed the `main` branch pushes.
+    - **Environment Sync**: Created `requirements.txt` and managed dependencies to ensure the project runs across all team machines.
+    - **Technical Documentation**: Authored the premium `README.md` and this `PROJECT_INFO.md` guide.
+    - **Bug Tracking**: Performed end-to-end testing of the webcam "Recalibrate" feature and the file-detect-history cycle.
 
 ---
 
-## 🗓️ Phase-wise Development Plan
+## 🔄 System Architecture (How it Works)
 
-### Phase 1: Core ML Development (ML Lead, Data Engineer)
-- Finalize Autoencoder architecture.
-- Baseline "Normal" data training (or pre-configuration).
-- Thresholding logic validation.
+The project operates as a **Sequential Pipeline**:
 
-### Phase 2: System Architecture (Web Lead, Integration Specialist)
-- Setup Flask server structure.
-- Integrate OpenCV webcam feed with Flask.
-- Build the initial "Anomaly Overlay" visualization.
-
-### Phase 3: Integration & Optimization (Whole Team)
-- Connect ML predictions to the Live Dashboard.
-- Optimize for high FPS (Performance tuning).
-- Implement the search/history sidebar.
-
-### Phase 4: Final Polish & Delivery (Documentation Lead, Web Lead)
-- Final UI styling & Responsive design.
-- Comprehensive testing.
-- Project report & Video demo preparation.
+1.  **Ingestion**: `webcam_detector.py` (Integration Specialist) grabs a frame at ~15-30 FPS.
+2.  **Preprocessing**: `feature_extractor.py` (Data Engineer) resizes and normalizes the pixel data.
+3.  **Inference**: `feature_extractor.py` (ML Lead) passes the frame through the **CNN Autoencoder**.
+4.  **Comparison**: `anomaly_detector.py` (ML Lead) compares the Original Frame vs. Reconstructed Frame.
+5.  **Classification**: If $MSE > Threshold$, the frame is flagged as an **ANOMALY**.
+6.  **Visualization**: `video_visualizer.py` (Integration Specialist) draws the Red border and metrics.
+7.  **Delivery**: `app.py` (Web Lead) streams the final result to the browser dashboard.
 
 ---
 
-## 🛠️ Communication Protocol
-- **Git Branching**: Develop on feature branches (`feat/ml-optimization`, `feat/ui-overhaul`).
-- **Commits**: Clear, modular commit messages (e.g., `feat: integrate webcam with flask stream`).
-- **Documentation**: All new functions must include docstrings for teammate clarity.
+## 🗺️ Tech Usage Matrix
+
+| Member | Primary Tool | Secondary Tool | Domain |
+| :--- | :--- | :--- | :--- |
+| **ML Lead** | TensorFlow | NumPy | Neural Networks |
+| **Web Lead** | Flask | CSS/JS | System Interface |
+| **Integration** | OpenCV (cv2) | Multiprocessing | Real-time Vision |
+| **Data Eng.** | NumPy | OS/Filesystem | Preprocessing |
+| **Support** | Git | Markdown | CI/CD & Docs |
